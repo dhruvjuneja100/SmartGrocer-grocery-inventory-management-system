@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Static Test Page</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem;
+      line-height: 1.5;
+    }
+    .card {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 2rem;
+      margin-top: 2rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .button {
+      background-color: #4a5568;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .button:hover {
+      background-color: #2d3748;
+    }
+  </style>
+</head>
+<body>
+  <h1>SmartGrocer Static Test Page</h1>
+  <p>This is a static HTML file to test if the Vite server is working correctly.</p>
+  
+  <div class="card">
+    <h2>Test Content</h2>
+    <p>If you can see this page, the server is successfully serving static files.</p>
+    <button class="button" onclick="alert('Button clicked!')">Click Me</button>
+  </div>
+
+  <script>
+    console.log('Static test page loaded successfully');
+  </script>
+</body>
+</html> 

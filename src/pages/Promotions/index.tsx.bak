@@ -1,0 +1,291 @@
+import { useState, useEffect } from 'react'
+import { 
+  Card, 
+  CardContent, 
+  CardDescription, 
+  CardHeader, 
+  CardTitle 
+} from "../../components/ui/card"
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from "../../components/ui/table"
+import { Button } from "../../components/ui/button"
+import { Input } from "../../components/ui/input"
+import { Search, PlusCircle, Tag, Percent, Calendar, RefreshCcw } from "lucide-react"
+import { Badge } from "../../components/ui/badge"
+import { promotionsApi } from "../../lib/api"
+import PromotionForm from "../../components/PromotionForm"
+
+interface Promotion {
+  id: number
+  name: string
+  description: string
+  discount_type: 'percentage' | 'fixed_amount' | 'buy_x_get_y'
+  discount_value: number
+  min_purchase_amount: number | null
+  start_date: string
+  end_date: string
+  is_active: boolean
+  created_at: string
+}
+
+const Promotions = () => {
+  const [promotions, setPromotions] = useState<Promotion[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [isAddPromotionOpen, setIsAddPromotionOpen] = useState(false)
+  const [error, setError] = useState('')
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  
+  const fetchPromotions = async () => {
+    try {
+      setIsLoading(true)
+      setError('')
+      console.log('Promotions component: Fetching promotions data')
+      const data = await promotionsApi.getAll()
+      console.log('Promotions component: Promotions data received', data)
+      
+      // Verify that we received valid data
+      if (!data || !Array.isArray(data)) {
+        throw new Error('Invalid data format received from server')
+      }
+      
+      setPromotions(data)
+    } catch (error) {
+      console.error('Error fetching promotions:', error)
+      setError('Failed to load promotions. Please try again.')
+    } finally {
+      setIsLoading(false)
+      setIsRefreshing(false)
+    }
+  }
+
+  useEffect(() => {
+    console.log('Promotions component: useEffect running')
+    fetchPromotions()
+  }, [])
+
+  // Filter promotions based on search term
+  const filteredPromotions = promotions.filter(promotion => 
+    promotion.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    promotion.description.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+
+  // Helper function to format discount value based on type
+  const formatDiscount = (promotion: Promotion) => {
+    switch (promotion.discount_type) {
+      case 'percentage':
+        return `${promotion.discount_value}%`
+      case 'fixed_amount':
+        return `₹${promotion.discount_value.toFixed(2)}`
+      case 'buy_x_get_y':
+        return `Buy 1 Get 1`
+      default:
+        return `${promotion.discount_value}`
+    }
+  }
+
+  // Helper function to check if promotion is currently active
+  const isPromotionActive = (promotion: Promotion) => {
+    if (!promotion.is_active) return false
+    
+    const now = new Date()
+    const startDate = new Date(promotion.start_date)
+    const endDate = new Date(promotion.end_date)
+    
+    return now >= startDate && now <= endDate
+  }
+
+  // Get promotion status badge
+  const getStatusBadge = (promotion: Promotion) => {
+    if (!promotion.is_active) {
+      return <Badge variant="outline">Inactive</Badge>
+    }
+    
+    const now = new Date()
+    const startDate = new Date(promotion.start_date)
+    const endDate = new Date(promotion.end_date)
+    
+    if (now < startDate) {
+      return <Badge variant="secondary">Upcoming</Badge>
+    } else if (now > endDate) {
+      return <Badge variant="destructive">Expired</Badge>
+    } else {
+      return <Badge variant="default">Active</Badge>
+    }
+  }
+
+  const handleAddPromotion = () => {
+    setIsAddPromotionOpen(true)
+  }
+
+  const handlePromotionAdded = () => {
+    fetchPromotions()
+  }
+  
+  const handleRefresh = () => {
+    setIsRefreshing(true)
+    fetchPromotions()
+  }
+
+  // Format date for display
+  const formatDate = (dateString: string) => {
+    try {
+      const date = new Date(dateString)
+      return date.toLocaleDateString()
+    } catch (e) {
+      return 'Invalid date'
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-3xl font-bold tracking-tight">Promotions</h2>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            onClick={handleRefresh}
+            disabled={isLoading || isRefreshing}
+          >
+            <RefreshCcw className="h-4 w-4 mr-2" />
+            Refresh
+          </Button>
+          <Button onClick={handleAddPromotion}>
+            <PlusCircle className="h-4 w-4 mr-2" />
+            Add Promotion
+          </Button>
+        </div>
+      </div>
+      
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Total Promotions
+            </CardTitle>
+            <Tag className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{promotions.length}</div>
+            {error && <div className="text-xs text-red-500 mt-1">Error loading data</div>}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Active Promotions
+            </CardTitle>
+            <Percent className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {promotions.filter(p => isPromotionActive(p)).length}
+            </div>
+            {error && <div className="text-xs text-red-500 mt-1">Error loading data</div>}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Upcoming Promotions
+            </CardTitle>
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {promotions.filter(p => {
+                const now = new Date()
+                const startDate = new Date(p.start_date)
+                return p.is_active && now < startDate
+              }).length}
+            </div>
+            {error && <div className="text-xs text-red-500 mt-1">Error loading data</div>}
+          </CardContent>
+        </Card>
+      </div>
+      
+      <Card>
+        <CardHeader>
+          <CardTitle>Promotion Management</CardTitle>
+          <CardDescription>
+            Manage your store promotions and discounts
+          </CardDescription>
+          <div className="flex items-center mt-4">
+            <Search className="h-4 w-4 mr-2 text-muted-foreground" />
+            <Input 
+              placeholder="Search promotions..." 
+              className="max-w-sm"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="py-8 text-center text-muted-foreground">Loading promotions...</div>
+          ) : error ? (
+            <div className="py-8 text-center">
+              <div className="text-red-500 mb-4">{error}</div>
+              <Button variant="outline" onClick={handleRefresh}>
+                <RefreshCcw className="h-4 w-4 mr-2" />
+                Try Again
+              </Button>
+            </div>
+          ) : filteredPromotions.length === 0 ? (
+            <div className="py-8 text-center text-muted-foreground">No promotions found</div>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Discount</TableHead>
+                    <TableHead>Start Date</TableHead>
+                    <TableHead>End Date</TableHead>
+                    <TableHead>Min Purchase</TableHead>
+                    <TableHead>Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredPromotions.map((promotion) => (
+                    <TableRow key={promotion.id}>
+                      <TableCell className="font-medium">
+                        {promotion.name}
+                        <div className="text-xs text-muted-foreground">{promotion.description}</div>
+                      </TableCell>
+                      <TableCell>{formatDiscount(promotion)}</TableCell>
+                      <TableCell>{formatDate(promotion.start_date)}</TableCell>
+                      <TableCell>{formatDate(promotion.end_date)}</TableCell>
+                      <TableCell>
+                        {promotion.min_purchase_amount 
+                          ? `₹${promotion.min_purchase_amount.toFixed(2)}` 
+                          : 'None'}
+                      </TableCell>
+                      <TableCell>{getStatusBadge(promotion)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {isAddPromotionOpen && (
+        <PromotionForm 
+          isOpen={isAddPromotionOpen}
+          onClose={() => setIsAddPromotionOpen(false)}
+          onSuccess={handlePromotionAdded}
+        />
+      )}
+    </div>
+  )
+}
+
+export default Promotions 
