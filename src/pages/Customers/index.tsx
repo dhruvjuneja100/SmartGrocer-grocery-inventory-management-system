@@ -72,9 +72,6 @@ const Customers = () => {
     customer.phone?.includes(searchTerm)
   )
 
-  // Calculate total orders
-  const totalOrders = customers.reduce((sum, customer) => sum + (customer.total_orders || 0), 0)
-
   const handleAddCustomer = () => {
     setSelectedCustomer(null)
     setIsAddCustomerOpen(true)
@@ -93,7 +90,18 @@ const Customers = () => {
     if (!customerToDelete) return
 
     try {
-      await customersApi.delete(customerToDelete.id)
+      // Ensure ID is properly parsed as an integer - use Number instead of parseInt for better handling
+      const customerId = Number(customerToDelete.id);
+      console.log(`Delete - Customer ID type: ${typeof customerToDelete.id}, value: ${customerToDelete.id}`);
+      console.log(`Delete - Converted ID type: ${typeof customerId}, value: ${customerId}`);
+      
+      if (isNaN(customerId)) {
+        throw new Error('Invalid customer ID')
+      }
+      
+      console.log(`Attempting to delete customer with ID: ${customerId}`)
+      await customersApi.delete(customerId)
+      
       fetchCustomers()
       toast({
         title: "Customer deleted",
@@ -137,18 +145,6 @@ const Customers = () => {
             <div className="text-2xl font-bold">{customers.length}</div>
           </CardContent>
         </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Orders
-            </CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalOrders}</div>
-          </CardContent>
-        </Card>
       </div>
       
       <Card>
@@ -180,7 +176,6 @@ const Customers = () => {
                   <TableHead>Email</TableHead>
                   <TableHead>Phone</TableHead>
                   <TableHead>Address</TableHead>
-                  <TableHead>Orders</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -191,7 +186,6 @@ const Customers = () => {
                     <TableCell>{customer.email}</TableCell>
                     <TableCell>{customer.phone}</TableCell>
                     <TableCell>{customer.address}</TableCell>
-                    <TableCell>{customer.total_orders}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end space-x-2">
                         <Button
@@ -233,9 +227,7 @@ const Customers = () => {
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
               This will permanently delete the customer "{customerToDelete?.name}". 
-              {customerToDelete?.total_orders ? 
-                ' This customer has existing orders which may be affected.' : 
-                ' This action cannot be undone.'}
+              This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

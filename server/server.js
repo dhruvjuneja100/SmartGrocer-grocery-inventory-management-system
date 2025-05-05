@@ -338,10 +338,54 @@ app.delete('/api/products/:id', async (req, res) => {
 // Customers routes
 app.get('/api/customers', async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM customers');
+    // Get customers with order count
+    const [rows] = await pool.query(`
+      SELECT c.*, 
+             IFNULL((SELECT COUNT(*) FROM orders WHERE customer_id = c.id), 0) as total_orders
+      FROM customers c
+    `);
     res.json({ success: true, data: rows });
   } catch (error) {
     console.error('Error fetching customers:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Add endpoint to get a single customer by ID
+app.get('/api/customers/:id', async (req, res) => {
+  try {
+    // Log the request for debugging
+    console.log(`GET request for customer with ID: ${req.params.id}`);
+    console.log(`Request params type: ${typeof req.params.id}`);
+    
+    // Ensure id is parsed as an integer
+    const customerId = parseInt(req.params.id, 10);
+    if (isNaN(customerId)) {
+      console.log(`Invalid customer ID: ${req.params.id}`);
+      return res.status(400).json({ success: false, error: 'Invalid customer ID' });
+    }
+    
+    console.log(`Looking for customer with ID: ${customerId}`);
+    
+    // Fetch the customer with order count
+    const [rows] = await pool.query(`
+      SELECT c.*, 
+             IFNULL((SELECT COUNT(*) FROM orders WHERE customer_id = c.id), 0) as total_orders
+      FROM customers c
+      WHERE c.id = ?
+    `, [customerId]);
+    
+    console.log(`Query results: ${rows.length} rows found`);
+    
+    if (rows.length === 0) {
+      console.log(`No customer found with ID: ${customerId}`);
+      return res.status(404).json({ success: false, error: 'Customer not found' });
+    }
+    
+    console.log(`Returning customer data for ID: ${customerId}`);
+    res.json({ success: true, data: rows[0] });
+  } catch (error) {
+    console.error(`Error fetching customer ${req.params.id}:`, error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -376,6 +420,11 @@ app.put('/api/customers/:id', async (req, res) => {
   try {
     const { name, email, phone, address } = req.body;
     
+    // Log the request for debugging
+    console.log(`PUT request for customer with ID: ${req.params.id}`);
+    console.log(`Request params type: ${typeof req.params.id}`);
+    console.log('Request body:', { name, email, phone, address });
+    
     if (!name || !email) {
       return res.status(400).json({ 
         success: false, 
@@ -383,21 +432,41 @@ app.put('/api/customers/:id', async (req, res) => {
       });
     }
     
+    // Ensure id is parsed as an integer
+    const customerId = parseInt(req.params.id, 10);
+    if (isNaN(customerId)) {
+      console.log(`Invalid customer ID: ${req.params.id}`);
+      return res.status(400).json({ success: false, error: 'Invalid customer ID' });
+    }
+    
+    console.log(`Looking for customer with ID: ${customerId}`);
+    
     // First check if the customer exists
-    const [customerRows] = await pool.query('SELECT * FROM customers WHERE id = ?', [req.params.id]);
+    const [customerRows] = await pool.query('SELECT * FROM customers WHERE id = ?', [customerId]);
+    
+    console.log(`Query results: ${customerRows.length} rows found`);
     
     if (customerRows.length === 0) {
+      console.log(`No customer found with ID: ${customerId}`);
       return res.status(404).json({ success: false, error: 'Customer not found' });
     }
     
     // Update the customer
+    console.log(`Updating customer with ID: ${customerId}`);
     await pool.query(
       'UPDATE customers SET name = ?, email = ?, phone = ?, address = ? WHERE id = ?',
-      [name, email, phone || null, address || null, req.params.id]
+      [name, email, phone || null, address || null, customerId]
     );
     
-    const [updatedCustomer] = await pool.query('SELECT * FROM customers WHERE id = ?', [req.params.id]);
+    // Get updated customer with order count
+    const [updatedCustomer] = await pool.query(`
+      SELECT c.*, 
+             IFNULL((SELECT COUNT(*) FROM orders WHERE customer_id = c.id), 0) as total_orders
+      FROM customers c
+      WHERE c.id = ?
+    `, [customerId]);
     
+    console.log(`Customer ${customerId} updated successfully`);
     res.json({ success: true, data: updatedCustomer[0] });
   } catch (error) {
     console.error(`Error updating customer ${req.params.id}:`, error);
@@ -408,17 +477,34 @@ app.put('/api/customers/:id', async (req, res) => {
 // Add customer delete endpoint
 app.delete('/api/customers/:id', async (req, res) => {
   try {
+    // Log the request for debugging
+    console.log(`DELETE request for customer with ID: ${req.params.id}`);
+    console.log(`Request params type: ${typeof req.params.id}`);
+    
+    // Ensure id is parsed as an integer
+    const customerId = parseInt(req.params.id, 10);
+    if (isNaN(customerId)) {
+      console.log(`Invalid customer ID: ${req.params.id}`);
+      return res.status(400).json({ success: false, error: 'Invalid customer ID' });
+    }
+    
+    console.log(`Looking for customer with ID: ${customerId}`);
+    
     // First check if the customer exists
-    const [customerRows] = await pool.query('SELECT * FROM customers WHERE id = ?', [req.params.id]);
+    const [customerRows] = await pool.query('SELECT * FROM customers WHERE id = ?', [customerId]);
+    
+    console.log(`Query results: ${customerRows.length} rows found`);
     
     if (customerRows.length === 0) {
+      console.log(`No customer found with ID: ${customerId}`);
       return res.status(404).json({ success: false, error: 'Customer not found' });
     }
     
     // Check if customer has any orders
-    const [orderRows] = await pool.query('SELECT COUNT(*) as count FROM orders WHERE customer_id = ?', [req.params.id]);
+    const [orderRows] = await pool.query('SELECT COUNT(*) as count FROM orders WHERE customer_id = ?', [customerId]);
     
     if (orderRows[0].count > 0) {
+      console.log(`Customer ${customerId} has ${orderRows[0].count} orders, cannot delete`);
       return res.status(400).json({ 
         success: false, 
         error: 'Cannot delete customer as they have existing orders. Consider deactivating the account instead.' 
@@ -426,8 +512,10 @@ app.delete('/api/customers/:id', async (req, res) => {
     }
     
     // Delete the customer
-    await pool.query('DELETE FROM customers WHERE id = ?', [req.params.id]);
+    console.log(`Deleting customer with ID: ${customerId}`);
+    await pool.query('DELETE FROM customers WHERE id = ?', [customerId]);
     
+    console.log(`Customer ${customerId} deleted successfully`);
     res.json({ success: true, message: 'Customer deleted successfully' });
   } catch (error) {
     console.error(`Error deleting customer ${req.params.id}:`, error);
@@ -452,7 +540,18 @@ app.get('/api/orders', async (req, res) => {
 
 app.post('/api/orders', async (req, res) => {
   try {
-    const { customer_id, employee_id, order_date, status, total_amount, payment_method, notes } = req.body;
+    const { 
+      customer_id, 
+      employee_id, 
+      order_date, 
+      status, 
+      total_amount, 
+      subtotal_amount, 
+      discount_amount, 
+      promotion_id, 
+      payment_method, 
+      notes 
+    } = req.body;
     
     if (!status || total_amount === undefined) {
       return res.status(400).json({ 
@@ -462,14 +561,30 @@ app.post('/api/orders', async (req, res) => {
     }
     
     const [result] = await pool.query(
-      'INSERT INTO orders (customer_id, employee_id, order_date, status, total_amount, payment_method, notes) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [customer_id || null, employee_id || null, order_date || new Date(), status, total_amount, payment_method || null, notes || null]
+      `INSERT INTO orders (
+        customer_id, employee_id, order_date, status, 
+        total_amount, subtotal_amount, discount_amount, promotion_id, 
+        payment_method, notes
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        customer_id || null, 
+        employee_id || null, 
+        order_date || new Date(), 
+        status, 
+        total_amount, 
+        subtotal_amount || total_amount, 
+        discount_amount || 0, 
+        promotion_id || null, 
+        payment_method || null, 
+        notes || null
+      ]
     );
     
     const [newOrder] = await pool.query(
-      `SELECT o.*, c.name as customer_name 
+      `SELECT o.*, c.name as customer_name, p.name as promotion_name 
        FROM orders o
        LEFT JOIN customers c ON o.customer_id = c.id
+       LEFT JOIN promotions p ON o.promotion_id = p.id
        WHERE o.id = ?`, 
       [result.insertId]
     );

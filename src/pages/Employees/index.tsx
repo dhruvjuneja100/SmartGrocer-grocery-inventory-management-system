@@ -70,8 +70,19 @@ const Employees = () => {
 
   // Format hire date for display
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    return date.toLocaleDateString()
+    if (!dateString) return '';
+    
+    try {
+      const date = new Date(dateString);
+      // Check if date is valid
+      if (isNaN(date.getTime())) {
+        return '';
+      }
+      return date.toLocaleDateString();
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return '';
+    }
   }
 
   return (
@@ -131,15 +142,19 @@ const Employees = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredEmployees.map((employee) => (
-                  <TableRow key={employee.id}>
-                    <TableCell className="font-medium">{employee.name}</TableCell>
-                    <TableCell>{employee.position}</TableCell>
-                    <TableCell>{employee.email}</TableCell>
-                    <TableCell>{employee.phone}</TableCell>
-                    <TableCell>{employee.hire_date ? formatDate(employee.hire_date) : ''}</TableCell>
-                  </TableRow>
-                ))}
+                {filteredEmployees.map((employee) => {
+                  // Debug log to see what data is actually coming from the API
+                  console.log('Employee data:', employee);
+                  return (
+                    <TableRow key={employee.id}>
+                      <TableCell className="font-medium">{employee.name || 'N/A'}</TableCell>
+                      <TableCell>{employee.position || 'N/A'}</TableCell>
+                      <TableCell>{employee.email || 'N/A'}</TableCell>
+                      <TableCell>{employee.phone || 'N/A'}</TableCell>
+                      <TableCell>{employee.hire_date ? formatDate(employee.hire_date) : 'N/A'}</TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           )}

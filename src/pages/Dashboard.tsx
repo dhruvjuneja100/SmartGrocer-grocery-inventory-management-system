@@ -158,11 +158,11 @@ export default function Dashboard() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
-          <p className="text-muted-foreground">
-            Welcome to SmartGrocer, your grocery inventory management system
-          </p>
+      <div>
+        <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+        <p className="text-muted-foreground">
+          Welcome to SmartGrocer, your grocery inventory management system
+        </p>
         </div>
         <Button 
           variant="outline" 
@@ -260,13 +260,13 @@ export default function Dashboard() {
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
               Suppliers
-            </CardTitle>
+              </CardTitle>
             <Truck className="h-5 w-5 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
+            </CardHeader>
+            <CardContent>
             <div className="text-2xl font-bold">
               {isLoading ? "Loading..." : stats.suppliersCount}
             </div>
@@ -364,9 +364,9 @@ export default function Dashboard() {
             </div>
             <p className="text-xs text-muted-foreground">
               Customer reviews
-            </p>
-          </CardContent>
-        </Card>
+              </p>
+            </CardContent>
+          </Card>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
@@ -385,26 +385,26 @@ export default function Dashboard() {
             ) : recentOrders.length === 0 ? (
               <div className="py-8 text-center text-muted-foreground">No orders found</div>
             ) : (
-              <div className="space-y-4">
+            <div className="space-y-4">
                 {recentOrders.map((order) => (
                   <div key={order.id} className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-secondary/50 flex items-center justify-center">
-                      <ShoppingCart className="h-6 w-6 text-muted-foreground" />
-                    </div>
-                    <div className="flex-1">
+                  <div className="w-12 h-12 rounded-full bg-secondary/50 flex items-center justify-center">
+                    <ShoppingCart className="h-6 w-6 text-muted-foreground" />
+                  </div>
+                  <div className="flex-1">
                       <p className="text-sm font-medium">Order #{order.id}</p>
                       <p className="text-xs text-muted-foreground">{order.customer_name || 'Unknown Customer'}</p>
-                    </div>
-                    <div className="text-right">
+                  </div>
+                  <div className="text-right">
                       <p className="text-sm">{formatPrice(order.total_amount)}</p>
                       <p className="text-xs text-muted-foreground">{formatDate(order.order_date)}</p>
                     </div>
                     <div>
                       {getStatusBadge(order.status)}
-                    </div>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
+            </div>
             )}
           </CardContent>
         </Card>
@@ -424,25 +424,25 @@ export default function Dashboard() {
             ) : lowStockProducts.length === 0 ? (
               <div className="py-8 text-center text-muted-foreground">No low stock products found</div>
             ) : (
-              <div className="space-y-4">
+            <div className="space-y-4">
                 {lowStockProducts.map((product) => (
                   <div key={product.id} className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-secondary/50 flex items-center justify-center">
-                      <PackageIcon className="h-6 w-6 text-muted-foreground" />
-                    </div>
-                    <div className="flex-1">
+                  <div className="w-12 h-12 rounded-full bg-secondary/50 flex items-center justify-center">
+                    <PackageIcon className="h-6 w-6 text-muted-foreground" />
+                  </div>
+                  <div className="flex-1">
                       <p className="text-sm font-medium">{product.name}</p>
                       <p className="text-xs text-muted-foreground">{product.category}</p>
-                    </div>
-                    <div className="text-right">
+                  </div>
+                  <div className="text-right">
                       <p className={`text-sm ${product.stock_quantity <= 0 ? 'text-red-500' : 'text-amber-500'}`}>
                         {product.stock_quantity} in stock
                       </p>
                       <p className="text-xs text-muted-foreground">SKU: {product.sku}</p>
-                    </div>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
+            </div>
             )}
           </CardContent>
         </Card>

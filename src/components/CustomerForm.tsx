@@ -77,35 +77,21 @@ const CustomerForm = ({ isOpen, onClose, onSuccess, customer }: CustomerFormProp
       // Log the request to help with debugging
       console.log('Customer form submitted with data:', formData)
 
-      if (debugMode) {
-        // Try direct API call first to help diagnose issues
-        try {
-          const response = await fetch('http://localhost:5001/api/customers', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(formData)
-          });
-          
-          const data = await response.json();
-          console.log('Debug API response:', data);
-          
-          if (!response.ok) {
-            throw new Error(`Direct API call failed: ${data.error || 'Unknown error'}`);
-          }
-          
-          // If direct call succeeded but normal method fails, we'll know it's a client issue
-        } catch (fetchError) {
-          console.error('Debug direct API call failed:', fetchError);
-        }
-      }
-
       if (customer?.id) {
-        // Update existing customer
-        await customersApi.update(customer.id, formData)
+        // Update existing customer - ensure ID is a valid number and handled properly
+        const customerId = Number(customer.id); // More reliable than parseInt
+        console.log(`Customer ID type: ${typeof customer.id}, value: ${customer.id}`);
+        console.log(`Converted ID type: ${typeof customerId}, value: ${customerId}`);
+        
+        if (isNaN(customerId)) {
+          throw new Error('Invalid customer ID')
+        }
+        
+        console.log(`Attempting to update customer with ID: ${customerId}`)
+        await customersApi.update(customerId, formData)
       } else {
         // Create new customer
+        console.log('Creating new customer')
         await customersApi.create(formData)
       }
       

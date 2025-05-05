@@ -57,16 +57,6 @@ const menuItems = [
     icon: <Truck className="h-5 w-5" />,
   },
   {
-    title: "Promotions",
-    href: "/promotions",
-    icon: <Tag className="h-5 w-5" />,
-  },
-  {
-    title: "Simple Promotions",
-    href: "/simple-promotions",
-    icon: <Tag className="h-5 w-5" />,
-  },
-  {
     title: "Employees",
     href: "/employees",
     icon: <UserRound className="h-5 w-5" />,

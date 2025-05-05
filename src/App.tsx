@@ -8,8 +8,6 @@ import Suppliers from './pages/Suppliers'
 import Employees from './pages/Employees'
 import Reports from './pages/Reports'
 import Settings from './pages/Settings'
-import Promotions from './pages/Promotions'
-import SimplePromotions from './pages/SimplePromotions'
 import Locations from './pages/Locations'
 import Delivery from './pages/Delivery'
 import Loyalty from './pages/Loyalty'
@@ -39,8 +37,6 @@ function App() {
             <Route path="orders" element={<Orders />} />
             <Route path="suppliers" element={<Suppliers />} />
             <Route path="employees" element={<Employees />} />
-            <Route path="promotions" element={<Promotions />} />
-            <Route path="simple-promotions" element={<SimplePromotions />} />
             <Route path="locations" element={<Locations />} />
             <Route path="delivery" element={<Delivery />} />
             <Route path="loyalty" element={<Loyalty />} />

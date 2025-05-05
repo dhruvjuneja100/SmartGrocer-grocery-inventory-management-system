@@ -27,9 +27,8 @@ import {
   TableHeader,
   TableRow
 } from './ui/table'
-import { X, Plus, Printer, CheckCircle, UserPlus } from 'lucide-react'
+import { X, Plus, Printer, CheckCircle } from 'lucide-react'
 import { customersApi, productsApi, ordersApi, employeesApi } from '../lib/api'
-import CustomerForm from './CustomerForm'
 import axios from 'axios'
 
 interface Customer {
@@ -73,8 +72,7 @@ const PurchaseForm = ({ isOpen, onClose, onSuccess }: PurchaseFormProps) => {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
-  const [customerOption, setCustomerOption] = useState<'existing' | 'new' | 'nil'>('nil')
-  const [isAddCustomerOpen, setIsAddCustomerOpen] = useState(false)
+  const [customerOption, setCustomerOption] = useState<'existing' | 'nil'>('nil')
   const [formData, setFormData] = useState({
     customer_id: '',
     employee_id: '',
@@ -135,7 +133,7 @@ const PurchaseForm = ({ isOpen, onClose, onSuccess }: PurchaseFormProps) => {
     setFormData(prev => ({ ...prev, [name]: value }))
   }
 
-  const handleCustomerOption = (value: 'existing' | 'new' | 'nil') => {
+  const handleCustomerOption = (value: 'existing' | 'nil') => {
     setCustomerOption(value)
     // Reset customer_id when switching options
     if (value !== 'existing') {
@@ -143,24 +141,6 @@ const PurchaseForm = ({ isOpen, onClose, onSuccess }: PurchaseFormProps) => {
     }
   }
   
-  const handleNewCustomer = async () => {
-    setIsAddCustomerOpen(true)
-  }
-
-  const handleCustomerAdded = async (customerId: number) => {
-    // Refresh the customer list
-    try {
-      const customersData = await customersApi.getAll()
-      setCustomers(customersData)
-      
-      // Set the new customer as selected
-      setFormData(prev => ({ ...prev, customer_id: customerId.toString() }))
-      setCustomerOption('existing')
-    } catch (error) {
-      console.error('Error refreshing customers:', error)
-    }
-  }
-
   const handleAddToCart = () => {
     if (!currentProduct) {
       setError('Please select a product')
@@ -439,7 +419,7 @@ const PurchaseForm = ({ isOpen, onClose, onSuccess }: PurchaseFormProps) => {
             <div className="space-y-5">
               <div>
                 <Label className="text-sm font-medium mb-1.5 block">Customer Option</Label>
-                <div className="flex space-x-2">
+                <div className="flex space-x-4">
                   <Button 
                     type="button" 
                     variant={customerOption === 'existing' ? "default" : "outline"}
@@ -447,15 +427,6 @@ const PurchaseForm = ({ isOpen, onClose, onSuccess }: PurchaseFormProps) => {
                     className="flex-1"
                   >
                     Existing Customer
-                  </Button>
-                  <Button 
-                    type="button" 
-                    variant={customerOption === 'new' ? "default" : "outline"}
-                    onClick={handleNewCustomer}
-                    className="flex-1"
-                  >
-                    <UserPlus className="h-4 w-4 mr-2" />
-                    New Customer
                   </Button>
                   <Button 
                     type="button" 
@@ -686,13 +657,6 @@ const PurchaseForm = ({ isOpen, onClose, onSuccess }: PurchaseFormProps) => {
           </DialogFooter>
         </form>
       </DialogContent>
-      
-      {/* New Customer Form */}
-      <CustomerForm
-        isOpen={isAddCustomerOpen}
-        onClose={() => setIsAddCustomerOpen(false)}
-        onSuccess={handleCustomerAdded}
-      />
     </Dialog>
   )
 }
