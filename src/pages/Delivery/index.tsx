@@ -64,7 +64,7 @@ const Delivery = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [error, setError] = useState('')
   const [isRefreshing, setIsRefreshing] = useState(false)
-  const [activeTab, setActiveTab] = useState<'assignments' | 'zones' | 'vehicles'>('assignments')
+  const [activeTab, setActiveTab] = useState<'assignments' | 'vehicles'>('assignments')
 
   const fetchData = async () => {
     try {
@@ -245,13 +245,6 @@ const Delivery = () => {
                 Assignments
               </Button>
               <Button 
-                variant={activeTab === 'zones' ? 'default' : 'outline'} 
-                onClick={() => setActiveTab('zones')}
-              >
-                <MapPin className="h-4 w-4 mr-2" />
-                Zones
-              </Button>
-              <Button 
                 variant={activeTab === 'vehicles' ? 'default' : 'outline'} 
                 onClick={() => setActiveTab('vehicles')}
               >
@@ -312,54 +305,6 @@ const Delivery = () => {
                           </TableCell>
                           <TableCell>{formatDate(assignment.scheduled_date)}</TableCell>
                           <TableCell>{getStatusBadge(assignment.delivery_status)}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                )
-              )}
-              
-              {activeTab === 'zones' && (
-                filteredZones.length === 0 ? (
-                  <div className="py-8 text-center text-muted-foreground">No zones found</div>
-                ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Zone Name</TableHead>
-                        <TableHead>City</TableHead>
-                        <TableHead>Pincode Range</TableHead>
-                        <TableHead>Delivery Charge</TableHead>
-                        <TableHead>Est. Time</TableHead>
-                        <TableHead>Status</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredZones.map((zone) => (
-                        <TableRow key={zone.id}>
-                          <TableCell className="font-medium">{zone.name}</TableCell>
-                          <TableCell>{zone.city}</TableCell>
-                          <TableCell>{zone.pincode_range}</TableCell>
-                          <TableCell>
-                            ₹{zone.delivery_charge.toFixed(2)}
-                            {zone.min_order_free_delivery && (
-                              <div className="text-xs text-muted-foreground">
-                                Free above ₹{zone.min_order_free_delivery.toFixed(2)}
-                              </div>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center">
-                              <Timer className="h-3 w-3 mr-1" />
-                              {zone.estimated_delivery_time}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            {zone.is_active 
-                              ? <Badge variant="default">Active</Badge>
-                              : <Badge variant="outline">Inactive</Badge>
-                            }
-                          </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>

@@ -11,7 +11,7 @@ const __dirname = path.dirname(__filename);
 const dbConfig = {
   host: 'localhost',
   user: 'root',
-  password: 'admin',
+  password: 'asanar05', // Changed password to empty string as the default MySQL installation often has no password
   multipleStatements: true // Required for running multiple SQL statements
 };
 

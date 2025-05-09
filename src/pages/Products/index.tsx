@@ -121,7 +121,7 @@ const Products = () => {
     if (stock <= 0) {
       return <Badge variant="destructive">Out of Stock</Badge>
     } else if (stock < 20) {
-      return <Badge variant="lowStock">Low Stock</Badge>
+      return <Badge variant="outline">Low Stock</Badge>
     } else {
       return <Badge variant="outline">In Stock</Badge>
     }
@@ -344,13 +344,13 @@ const Products = () => {
                   {filteredProducts.map((product) => (
                     <TableRow 
                       key={product.id}
-                      className={product.stock_quantity < 20 && product.status !== 'inactive' ? 'bg-amber-100' : ''}
+                      className=""
                     >
-                      <TableCell className={`font-medium ${product.stock_quantity < 20 && product.status !== 'inactive' ? 'text-gray-900' : ''}`}>{product.name}</TableCell>
-                      <TableCell className={product.stock_quantity < 20 && product.status !== 'inactive' ? 'text-gray-900' : ''}>{product.sku}</TableCell>
-                      <TableCell className={product.stock_quantity < 20 && product.status !== 'inactive' ? 'text-gray-900' : ''}>{product.category}</TableCell>
-                      <TableCell className={product.stock_quantity < 20 && product.status !== 'inactive' ? 'text-gray-900' : ''}>{formatPrice(product.price)}</TableCell>
-                      <TableCell className={product.stock_quantity < 20 && product.status !== 'inactive' ? 'text-amber-700 font-medium' : ''}>{product.stock_quantity}</TableCell>
+                      <TableCell className="font-medium">{product.name}</TableCell>
+                      <TableCell>{product.sku}</TableCell>
+                      <TableCell>{product.category}</TableCell>
+                      <TableCell>{formatPrice(product.price)}</TableCell>
+                      <TableCell>{product.stock_quantity}</TableCell>
                       <TableCell>{getStockStatusBadge(product)}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">

@@ -72,11 +72,6 @@ const menuItems = [
     icon: <MapPin className="h-5 w-5" />,
   },
   {
-    title: "Loyalty",
-    href: "/loyalty",
-    icon: <Star className="h-5 w-5" />,
-  },
-  {
     title: "Feedback",
     href: "/feedback",
     icon: <MessageSquare className="h-5 w-5" />,
@@ -122,15 +117,15 @@ export default function Layout() {
             <span className="sr-only">Logout</span>
           </Button>
           <ThemeToggle />
-          <Button
-            variant="outline"
-            size="icon"
+        <Button
+          variant="outline"
+          size="icon"
             className="md:hidden"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            <Menu className="h-5 w-5" />
-            <span className="sr-only">Toggle menu</span>
-          </Button>
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+        >
+          <Menu className="h-5 w-5" />
+          <span className="sr-only">Toggle menu</span>
+        </Button>
         </div>
       </header>
       

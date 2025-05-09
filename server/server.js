@@ -26,7 +26,7 @@ app.use((req, res, next) => {
 const pool = mysql.createPool({
   host: 'localhost',
   user: 'root',
-  password: 'admin',
+  password: 'asanar05',
   database: 'sg_inventory',
   waitForConnections: true,
   connectionLimit: 10,

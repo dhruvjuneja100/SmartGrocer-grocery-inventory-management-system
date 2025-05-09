@@ -10,7 +10,6 @@ import Reports from './pages/Reports'
 import Settings from './pages/Settings'
 import Locations from './pages/Locations'
 import Delivery from './pages/Delivery'
-import Loyalty from './pages/Loyalty'
 import Feedback from './pages/Feedback'
 import Inventory from './pages/Inventory'
 import Home from './pages/Home'
@@ -39,7 +38,6 @@ function App() {
             <Route path="employees" element={<Employees />} />
             <Route path="locations" element={<Locations />} />
             <Route path="delivery" element={<Delivery />} />
-            <Route path="loyalty" element={<Loyalty />} />
             <Route path="feedback" element={<Feedback />} />
             <Route path="reports" element={<Reports />} />
             <Route path="settings" element={<Settings />} />

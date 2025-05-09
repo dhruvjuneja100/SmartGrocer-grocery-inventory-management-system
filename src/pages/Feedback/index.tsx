@@ -98,9 +98,14 @@ const Feedback = () => {
 
   // Filter feedback based on search term and status filter
   const filteredFeedback = feedback.filter(item => {
-    // Status filter
+    // First filter out pending and rejected feedback
+    if (item.status !== 'approved') {
+      return false;
+    }
+    
+    // Status filter (now only 'all' or 'approved' are valid options)
     if (statusFilter !== 'all' && item.status !== statusFilter) {
-      return false
+      return false;
     }
     
     // Search term filter
@@ -254,25 +259,11 @@ const Feedback = () => {
                 All
               </Button>
               <Button 
-                variant={statusFilter === 'pending' ? 'default' : 'outline'} 
-                size="sm" 
-                onClick={() => setStatusFilter('pending')}
-              >
-                Pending
-              </Button>
-              <Button 
                 variant={statusFilter === 'approved' ? 'default' : 'outline'} 
                 size="sm" 
                 onClick={() => setStatusFilter('approved')}
               >
                 Approved
-              </Button>
-              <Button 
-                variant={statusFilter === 'rejected' ? 'default' : 'outline'} 
-                size="sm" 
-                onClick={() => setStatusFilter('rejected')}
-              >
-                Rejected
               </Button>
             </div>
           </div>
@@ -301,7 +292,6 @@ const Feedback = () => {
                     <TableHead>Rating</TableHead>
                     <TableHead>Comments</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -313,30 +303,6 @@ const Feedback = () => {
                       <TableCell>{getRatingStars(item.rating)}</TableCell>
                       <TableCell className="max-w-xs truncate">{item.comments}</TableCell>
                       <TableCell>{getStatusBadge(item.status)}</TableCell>
-                      <TableCell>
-                        {item.status === 'pending' && (
-                          <div className="flex space-x-2">
-                            <Button 
-                              size="sm" 
-                              variant="outline" 
-                              className="h-8 w-8 p-0" 
-                              onClick={() => handleApprove(item.id)}
-                              title="Approve"
-                            >
-                              <Check className="h-4 w-4 text-green-500" />
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              variant="outline" 
-                              className="h-8 w-8 p-0" 
-                              onClick={() => handleReject(item.id)}
-                              title="Reject"
-                            >
-                              <X className="h-4 w-4 text-red-500" />
-                            </Button>
-                          </div>
-                        )}
-                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

@@ -316,6 +316,8 @@ const PurchaseForm = ({ isOpen, onClose, onSuccess }: PurchaseFormProps) => {
         customer_id: customerOption === 'existing' ? parseInt(formData.customer_id) : null,
         employee_id: formData.employee_id ? parseInt(formData.employee_id) : null,
         total_amount: totalAmount,
+        subtotal_amount: totalAmount,
+        discount_amount: 0,
         status: 'completed',
         payment_method: formData.payment_method,
         notes: formData.notes

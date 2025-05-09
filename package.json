@@ -11,7 +11,8 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
-    "init-db": "node server/init-db.js"
+    "init-db": "node server/init-db.js",
+    "setup-db": "node server/setup-db.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
