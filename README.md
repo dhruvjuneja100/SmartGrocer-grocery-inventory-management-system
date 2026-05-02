@@ -101,10 +101,3 @@ cd backend
 npm run build
 ```
 
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Contact
-
-For any questions or support, please contact the SmartGrocer team at support@smartgrocer.app
